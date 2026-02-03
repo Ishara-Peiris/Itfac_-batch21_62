@@ -27,4 +27,17 @@ Feature: Plant Management UI
     Then a success message should be displayed
     And the new plant "Orchid" should appear in the table
 
-
+  @validation @add-plant
+  Scenario: UI-PM-03 - Admin validates empty fields in Add Plant form
+    Given the admin user navigates to the login page
+    When the admin enters username "admin" and password "admin123"
+    And the admin clicks the login button
+    And the admin waits for the plants page to load
+    And the admin clicks the "Add a Plant" button
+    Then the add plant form should be displayed
+    When the admin leaves the plant name empty
+    And the admin leaves the plant price empty
+    And the admin submits the plant form
+    Then the form should not be submitted
+    And the "Name is required" validation message should be displayed
+    And the "Price is required" validation message should be displayed
