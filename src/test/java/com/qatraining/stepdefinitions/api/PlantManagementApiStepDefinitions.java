@@ -9,6 +9,9 @@ import io.restassured.response.Response;
 import net.serenitybdd.core.Serenity;
 import net.serenitybdd.rest.SerenityRest;
 import static org.assertj.core.api.Assertions.assertThat;
+import com.qatraining.hooks.AuthenticationManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,9 +20,11 @@ import java.util.Map;
  * Step definitions for Plant Management API tests
  * Test Case: API-PM-01 - Admin creates a new plant with valid details
  * Base URL: http://localhost:8080
- * Authentication: JWT (Bearer Token)
+ * Authentication: JWT (Bearer Token) - cached from AuthenticationManager
  */
 public class PlantManagementApiStepDefinitions {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(PlantManagementApiStepDefinitions.class);
     
     private String baseUrl;
     private String authToken;
@@ -37,37 +42,25 @@ public class PlantManagementApiStepDefinitions {
 
     @And("the admin has a valid JWT authentication token")
     public void setJwtToken() {
-        // Call authentication endpoint to get JWT token dynamically
+        // Get cached token or obtain new one from AuthenticationManager
         try {
-            // Prepare login credentials
-            Map<String, String> loginPayload = new HashMap<>();
-            loginPayload.put("username", "admin");
-            loginPayload.put("password", "admin123");
+            authToken = AuthenticationManager.getAdminToken();
             
-            // Call POST /api/auth/login to get JWT token
-            Response authResponse = SerenityRest.given()
-                    .baseUri(baseUrl)
-                    .contentType("application/json")
-                    .body(loginPayload)
-                    .when()
-                    .post(API_BASE_PATH + "/auth/login");
-            
-            // Verify authentication was successful
-            if (authResponse.getStatusCode() == 200) {
-                authToken = authResponse.jsonPath().getString("token");
-                
-                Serenity.recordReportData()
-                        .withTitle("JWT Authentication ✓")
-                        .andContents("✓ Successfully obtained JWT token from /api/auth/login\n" +
-                                "Token (first 50 chars): " + authToken.substring(0, Math.min(50, authToken.length())) + "...\n" +
-                                "Status Code: 200");
-            } else {
-                throw new RuntimeException("Authentication failed! Status Code: " + authResponse.getStatusCode() + 
-                        "\nResponse: " + authResponse.getBody().asString());
+            if (authToken == null || authToken.isEmpty()) {
+                throw new RuntimeException("Failed to obtain authentication token from AuthenticationManager");
             }
+            
+            LOGGER.info("Using authentication token (cached or newly obtained)");
+            
+            Serenity.recordReportData()
+                    .withTitle("JWT Authentication ✓")
+                    .andContents("✓ Successfully obtained JWT token from centralized AuthenticationManager\n" +
+                            "Token (first 50 chars): " + authToken.substring(0, Math.min(50, authToken.length())) + "...\n" +
+                            "Reusing cached token when available for efficiency");
             
             Serenity.setSessionVariable("authToken").to(authToken);
         } catch (Exception e) {
+            LOGGER.error("Failed to get authentication token", e);
             Serenity.recordReportData()
                     .withTitle("JWT Authentication ✗ ERROR")
                     .andContents("Failed to get JWT token: " + e.getMessage());
@@ -75,8 +68,8 @@ public class PlantManagementApiStepDefinitions {
         }
     }
 
-    @Given("a valid sub-category exists in the system")
-    public void ensureCategoryExists() {
+    @Given("a valid sub-category exists in the system as {string}")
+    public void ensureCategoryExists(String categoryName) {
         try {
             // First, try to get all sub-categories via /api/subcategories endpoint
             Response subcategoriesResponse = SerenityRest.given()
@@ -104,24 +97,32 @@ public class PlantManagementApiStepDefinitions {
                 
                 Serenity.recordReportData()
                         .withTitle("Sub-Category Lookup ✓")
-                        .andContents("Sub-Categories API Status: " + subcategoriesResponse.getStatusCode() + 
+                        .andContents("Category Name: " + categoryName +
+                                    "\nSub-Categories API Status: " + subcategoriesResponse.getStatusCode() + 
                                     "\nUsing Sub-Category ID: " + categoryId +
                                     "\nResponse: " + responseBody);
             } else {
                 categoryId = "1";
                 Serenity.recordReportData()
                         .withTitle("Sub-Category Lookup - Fallback")
-                        .andContents("Sub-Categories API Status: " + subcategoriesResponse.getStatusCode() + 
+                        .andContents("Category Name: " + categoryName +
+                                    "\nSub-Categories API Status: " + subcategoriesResponse.getStatusCode() + 
                                     "\nFalling back to category ID: 1");
             }
         } catch (Exception e) {
             categoryId = "1";
             Serenity.recordReportData()
                     .withTitle("Sub-Category Lookup - Error")
-                    .andContents("Error fetching sub-categories. Using default category ID: 1\nError: " + e.getMessage());
+                    .andContents("Category Name: " + categoryName +
+                                "\nError fetching sub-categories. Using default category ID: 1\nError: " + e.getMessage());
         }
         
         Serenity.setSessionVariable("categoryId").to(categoryId);
+    }
+    
+    @Given("a valid sub-category exists in the system")
+    public void ensureCategoryExists() {
+        ensureCategoryExists("Flower");
     }
 
     @When("the admin sends a POST request to create a plant under the category with:")
@@ -133,6 +134,7 @@ public class PlantManagementApiStepDefinitions {
         requestPayload.put("name", plantData.get("name"));
         requestPayload.put("price", Integer.parseInt(plantData.get("price")));
         requestPayload.put("quantity", Integer.parseInt(plantData.get("quantity")));
+        requestPayload.put("categoryId", Integer.parseInt(categoryId));  // ← ADD categoryId to payload
 
         Serenity.recordReportData()
                 .withTitle("Plant Creation Request")
@@ -161,13 +163,15 @@ public class PlantManagementApiStepDefinitions {
 
     @Then("the response status code should be {int}")
     public void verifyStatusCode(int expectedCode) {
+        String responseBody = response.getBody() != null ? response.getBody().asString() : "<no body>";
+
         assertThat(response.getStatusCode())
-                .as("Expected HTTP " + expectedCode + " but got " + response.getStatusCode())
+                .as("Expected HTTP " + expectedCode + " but got " + response.getStatusCode() + "\nResponse Body: " + responseBody)
                 .isEqualTo(expectedCode);
-        
+
         Serenity.recordReportData()
                 .withTitle("Status Code Verification ✓")
-                .andContents("HTTP " + expectedCode + " - Created successfully");
+                .andContents("HTTP " + expectedCode + " - Created successfully\nResponse Body: " + responseBody);
     }
 
     @And("the response should contain a plant ID")

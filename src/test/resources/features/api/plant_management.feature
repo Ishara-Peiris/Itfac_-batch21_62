@@ -10,7 +10,7 @@ Feature: Plant Management API
 
   @API-PM-01 @smoke @create
   Scenario: Admin creates a new plant with valid details
-    Given a valid sub-category exists in the system
+    Given a valid sub-category exists in the system as "Flower"
     When the admin sends a POST request to create a plant under the category with:
       | name     | Anthurium |
       | price    | 150       |
