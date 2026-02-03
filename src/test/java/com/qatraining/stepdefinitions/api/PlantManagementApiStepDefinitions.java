@@ -75,8 +75,8 @@ public class PlantManagementApiStepDefinitions {
         }
     }
 
-    @Given("a valid sub-category exists in the system")
-    public void ensureCategoryExists() {
+    @Given("a valid sub-category exists in the system as {string}")
+    public void ensureCategoryExists(String categoryName) {
         try {
             // First, try to get all sub-categories via /api/subcategories endpoint
             Response subcategoriesResponse = SerenityRest.given()
@@ -104,24 +104,32 @@ public class PlantManagementApiStepDefinitions {
                 
                 Serenity.recordReportData()
                         .withTitle("Sub-Category Lookup ✓")
-                        .andContents("Sub-Categories API Status: " + subcategoriesResponse.getStatusCode() + 
+                        .andContents("Category Name: " + categoryName +
+                                    "\nSub-Categories API Status: " + subcategoriesResponse.getStatusCode() + 
                                     "\nUsing Sub-Category ID: " + categoryId +
                                     "\nResponse: " + responseBody);
             } else {
                 categoryId = "1";
                 Serenity.recordReportData()
                         .withTitle("Sub-Category Lookup - Fallback")
-                        .andContents("Sub-Categories API Status: " + subcategoriesResponse.getStatusCode() + 
+                        .andContents("Category Name: " + categoryName +
+                                    "\nSub-Categories API Status: " + subcategoriesResponse.getStatusCode() + 
                                     "\nFalling back to category ID: 1");
             }
         } catch (Exception e) {
             categoryId = "1";
             Serenity.recordReportData()
                     .withTitle("Sub-Category Lookup - Error")
-                    .andContents("Error fetching sub-categories. Using default category ID: 1\nError: " + e.getMessage());
+                    .andContents("Category Name: " + categoryName +
+                                "\nError fetching sub-categories. Using default category ID: 1\nError: " + e.getMessage());
         }
         
         Serenity.setSessionVariable("categoryId").to(categoryId);
+    }
+    
+    @Given("a valid sub-category exists in the system")
+    public void ensureCategoryExists() {
+        ensureCategoryExists("Flower");
     }
 
     @When("the admin sends a POST request to create a plant under the category with:")
@@ -133,6 +141,7 @@ public class PlantManagementApiStepDefinitions {
         requestPayload.put("name", plantData.get("name"));
         requestPayload.put("price", Integer.parseInt(plantData.get("price")));
         requestPayload.put("quantity", Integer.parseInt(plantData.get("quantity")));
+        requestPayload.put("categoryId", Integer.parseInt(categoryId));  // ← ADD categoryId to payload
 
         Serenity.recordReportData()
                 .withTitle("Plant Creation Request")
@@ -161,13 +170,15 @@ public class PlantManagementApiStepDefinitions {
 
     @Then("the response status code should be {int}")
     public void verifyStatusCode(int expectedCode) {
+        String responseBody = response.getBody() != null ? response.getBody().asString() : "<no body>";
+
         assertThat(response.getStatusCode())
-                .as("Expected HTTP " + expectedCode + " but got " + response.getStatusCode())
+                .as("Expected HTTP " + expectedCode + " but got " + response.getStatusCode() + "\nResponse Body: " + responseBody)
                 .isEqualTo(expectedCode);
-        
+
         Serenity.recordReportData()
                 .withTitle("Status Code Verification ✓")
-                .andContents("HTTP " + expectedCode + " - Created successfully");
+                .andContents("HTTP " + expectedCode + " - Created successfully\nResponse Body: " + responseBody);
     }
 
     @And("the response should contain a plant ID")

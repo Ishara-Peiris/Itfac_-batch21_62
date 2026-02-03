@@ -1,8 +1,7 @@
 package com.qatraining.pages;
 
-import net.serenitybdd.core.pages.PageObject;
-import net.serenitybdd.annotations.DefaultUrl;
 import net.serenitybdd.core.pages.WebElementFacade;
+import net.serenitybdd.annotations.DefaultUrl;
 import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
@@ -12,30 +11,41 @@ import java.util.stream.Collectors;
  * Page Object for the Plants Management page.
  * Contains all web elements and actions related to plant management functionality.
  */
-@DefaultUrl("/plants")
-public class PlantsPage extends PageObject {
+@DefaultUrl("/ui/plants")
+public class PlantsPage extends BasePage {
+
+    // Page Header
+    @FindBy(css = "h2, h3")
+    private WebElementFacade pageHeader;
+
+    // Navigation Menu
+    @FindBy(css = ".sidebar")
+    private WebElementFacade navigationMenu;
+
+    @FindBy(css = "a[href='/ui/plants']")
+    private WebElementFacade plantsNavLink;
 
     // Add Plant Button
-    @FindBy(css = "button[data-testid='add-plant-btn'], button.add-plant-btn, button:contains('Add Plant')")
+    @FindBy(css = "a[href='/ui/plants/add']")
     private WebElementFacade addPlantButton;
 
     // Modal/Form Elements
     @FindBy(css = ".modal, .plant-modal, [role='dialog']")
     private WebElementFacade modal;
 
-    @FindBy(css = "input[name='name'], input#plant-name, input[data-testid='plant-name']")
+    @FindBy(id = "name")
     private WebElementFacade plantNameField;
 
-    @FindBy(css = "input[name='price'], input#plant-price, input[data-testid='plant-price']")
+    @FindBy(id = "price")
     private WebElementFacade plantPriceField;
 
-    @FindBy(css = "input[name='quantity'], input#plant-quantity, input[data-testid='plant-quantity']")
+    @FindBy(id = "quantity")
     private WebElementFacade plantQuantityField;
 
-    @FindBy(css = "select[name='category'], select#category, select[data-testid='category-select']")
+    @FindBy(id = "categoryId")
     private WebElementFacade categoryDropdown;
 
-    @FindBy(css = "button[type='submit'], button.submit-btn, button[data-testid='submit-btn']")
+    @FindBy(css = "button.btn-primary")
     private WebElementFacade submitButton;
 
     @FindBy(css = "button.update-btn, button[data-testid='update-btn'], button:contains('Update'), button:contains('Save')")
@@ -49,20 +59,24 @@ public class PlantsPage extends PageObject {
     private List<WebElementFacade> validationErrors;
 
     // Plants Table
-    @FindBy(css = "table tbody tr, .plant-row, [data-testid='plant-row']")
+    @FindBy(css = "table.table tbody tr")
     private List<WebElementFacade> plantRows;
 
-    @FindBy(css = "table tbody tr:first-child, .plant-row:first-child")
+    @FindBy(css = "table.table tbody tr:first-child")
     private WebElementFacade firstPlantRow;
 
-    @FindBy(css = "table tbody tr:first-child .edit-btn, table tbody tr:first-child button[aria-label='Edit'], .plant-row:first-child .edit-icon")
+    @FindBy(css = "table.table tbody tr:first-child a[href*='/edit']")
     private WebElementFacade firstEditButton;
 
-    @FindBy(css = "table tbody tr:first-child td.price, table tbody tr:first-child [data-field='price']")
+    @FindBy(css = "table.table tbody tr:first-child td:nth-child(3)")
     private WebElementFacade firstPlantPriceCell;
 
+    // Table Header
+    @FindBy(css = "table.table thead")
+    private WebElementFacade tableHeader;
+
     // Page Container
-    @FindBy(css = ".plants-page, .plants-container, [data-testid='plants-page']")
+    @FindBy(css = ".main-content, .app-layout")
     private WebElementFacade plantsContainer;
 
     /**
@@ -71,6 +85,47 @@ public class PlantsPage extends PageObject {
      */
     public boolean isDisplayed() {
         return plantsContainer.isVisible() || !plantRows.isEmpty();
+    }
+
+    /**
+     * Check if page has fully loaded (wait for loading spinner to disappear)
+     */
+    public void waitForPageToLoad() {
+        waitFor(driver -> {
+            try {
+                // Check if table is visible or container is visible
+                return (plantsContainer.isPresent() && plantsContainer.isVisible()) || 
+                       (tableHeader.isPresent() && tableHeader.isVisible());
+            } catch (Exception e) {
+                return false;
+            }
+        });
+    }
+
+    /**
+     * Check if table has plants loaded.
+     * @return true if at least one plant row exists
+     */
+    public boolean hasPlants() {
+        return !plantRows.isEmpty();
+    }
+
+    /**
+     * Get the number of plants in the table.
+     * @return count of plant rows
+     */
+    public int getPlantCount() {
+        return plantRows.size();
+    }
+
+    /**
+     * Check if plant exists in the table.
+     * @param plantName the plant name to search for
+     * @return true if plant is found in table
+     */
+    public boolean isPlantInTable(String plantName) {
+        return plantRows.stream()
+                .anyMatch(row -> row.getText().contains(plantName));
     }
 
     /**
@@ -153,11 +208,27 @@ public class PlantsPage extends PageObject {
     }
 
     /**
+     * Submit the plant form.
+     */
+    public void submitPlantForm() {
+        submitButton.waitUntilClickable();
+        submitButton.click();
+    }
+
+    /**
      * Click the Update button.
      */
     public void clickUpdateButton() {
         updateButton.waitUntilClickable();
         updateButton.click();
+    }
+
+    /**
+     * Check if add plant form is displayed.
+     * @return true if form is visible
+     */
+    public boolean isAddPlantFormDisplayed() {
+        return plantNameField.isVisible() && plantPriceField.isVisible();
     }
 
     /**
@@ -196,24 +267,6 @@ public class PlantsPage extends PageObject {
     }
 
     /**
-     * Check if plant exists in the table.
-     * @param plantName the plant name to search for
-     * @return true if plant is found in table
-     */
-    public boolean isPlantInTable(String plantName) {
-        return plantRows.stream()
-                .anyMatch(row -> row.getText().contains(plantName));
-    }
-
-    /**
-     * Check if table has any plants.
-     * @return true if table has at least one plant
-     */
-    public boolean hasPlants() {
-        return !plantRows.isEmpty();
-    }
-
-    /**
      * Click edit button on the first plant row.
      */
     public void clickEditOnFirstPlant() {
@@ -234,10 +287,47 @@ public class PlantsPage extends PageObject {
     }
 
     /**
-     * Get the number of plants in the table.
-     * @return count of plant rows
+     * Get the page title/header text.
+     * @return the header text
      */
-    public int getPlantCount() {
-        return plantRows.size();
+    public String getPageHeaderText() {
+        if (pageHeader.isVisible()) {
+            return pageHeader.getText();
+        }
+        return "";
+    }
+
+    /**
+     * Check if page header is visible.
+     * @return true if header is visible
+     */
+    public boolean isPageHeaderVisible() {
+        return pageHeader.isVisible();
+    }
+
+    /**
+     * Check if Plants navigation link is visible.
+     * @return true if Plants nav link is visible
+     */
+    public boolean isPlantsNavLinkVisible() {
+        return plantsNavLink.isVisible();
+    }
+
+    /**
+     * Click on Plants navigation link.
+     */
+    public void clickPlantsNavLink() {
+        plantsNavLink.waitUntilClickable();
+        plantsNavLink.click();
+    }
+
+    /**
+     * Get all plant names from the table.
+     * @return list of plant names
+     */
+    public List<String> getAllPlantNames() {
+        return plantRows.stream()
+                .map(WebElementFacade::getText)
+                .collect(Collectors.toList());
     }
 }

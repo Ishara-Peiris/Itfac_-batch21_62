@@ -1,30 +1,29 @@
 package com.qatraining.pages;
 
-import net.serenitybdd.core.pages.PageObject;
-import net.serenitybdd.annotations.DefaultUrl;
 import net.serenitybdd.core.pages.WebElementFacade;
+import net.serenitybdd.annotations.DefaultUrl;
 import org.openqa.selenium.support.FindBy;
 
 /**
  * Page Object for the Login page.
  * Contains all web elements and actions related to the login functionality.
  */
-@DefaultUrl("/login")
-public class LoginPage extends PageObject {
+@DefaultUrl("/ui/login")
+public class LoginPage extends BasePage {
 
-    @FindBy(id = "username")
+    @FindBy(name = "username")
     private WebElementFacade usernameField;
 
-    @FindBy(id = "password")
+    @FindBy(name = "password")
     private WebElementFacade passwordField;
 
-    @FindBy(id = "login-button")
+    @FindBy(css = "button[type='submit']")
     private WebElementFacade loginButton;
 
-    @FindBy(css = ".error-message")
+    @FindBy(css = ".alert.alert-danger")
     private WebElementFacade errorMessage;
 
-    @FindBy(css = ".validation-error")
+    @FindBy(css = ".invalid-feedback")
     private WebElementFacade validationError;
 
     /**
