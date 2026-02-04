@@ -462,8 +462,7 @@ public class PlantsPage extends BasePage {
     public String getPlantImageSrc(String plantName) {
         WebElementFacade row = getRowForPlant(plantName);
         if (row != null) {
-            // Use findAll to avoid NoSuchElementException if img is not present
-            List<WebElementFacade> images = row.findAll(org.openqa.selenium.By.tagName("img"));
+            List<org.openqa.selenium.WebElement> images = row.findElements(org.openqa.selenium.By.tagName("img"));
             return !images.isEmpty() ? images.get(0).getAttribute("src") : null;
         }
         return null;
@@ -484,7 +483,7 @@ public class PlantsPage extends BasePage {
         }
 
         // If no img tag, check for icon-based placeholder (e.g., Bootstrap Icons)
-        return !row.findAll(org.openqa.selenium.By.cssSelector("i.bi-image, i.bi-camera, .placeholder-icon")).isEmpty();
+        return !row.findElements(org.openqa.selenium.By.cssSelector("i.bi-image, i.bi-camera, .placeholder-icon")).isEmpty();
     }
 
     /**

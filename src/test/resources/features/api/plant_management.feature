@@ -33,3 +33,30 @@ Feature: Plant Management API
     And the response should contain the updated quantity 50
     And I should be able to retrieve the updated plant via GET request to verify changes
 
+  @API-PM-03 @smoke @delete
+  Scenario: Admin deletes a plant successfully
+    Given a plant exists with ID "1"
+    When the admin sends a DELETE request to remove the plant
+    Then the response status code should be 204
+    And the deleted plant should no longer be retrievable
+
+  @API-PM-04 @validation @create
+  Scenario: Admin cannot create a plant with a negative price
+    Given a valid sub-category exists in the system as "Flower"
+    When the admin sends a POST request to create a plant under the category with:
+      | name     | Negative Price Plant |
+      | price    | -100                 |
+      | quantity | 10                   |
+    Then the response status code should be 400
+    And the response error message should contain "price"
+
+  @API-PM-05 @validation @create
+  Scenario: Admin cannot create a plant with a non-existent category ID
+    Given a category ID "99999" does not exist in the system
+    When the admin sends a POST request to create a plant under the category with:
+      | name     | Orphan Plant |
+      | price    | 500          |
+      | quantity | 10           |
+    Then the response status code should be 400
+
+

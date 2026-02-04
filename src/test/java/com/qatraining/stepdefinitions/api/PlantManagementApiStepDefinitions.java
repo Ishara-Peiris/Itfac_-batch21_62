@@ -125,6 +125,15 @@ public class PlantManagementApiStepDefinitions {
         ensureCategoryExists("Flower");
     }
 
+    @Given("a category ID {string} does not exist in the system")
+    public void setNonExistentCategoryId(String id) {
+        this.categoryId = id;
+        Serenity.setSessionVariable("categoryId").to(categoryId);
+        Serenity.recordReportData()
+                .withTitle("Non-existent Category Configuration ✓")
+                .andContents("Configured non-existent Category ID: " + categoryId);
+    }
+
     @When("the admin sends a POST request to create a plant under the category with:")
     public void createPlant(DataTable dataTable) {
         // Prepare request payload
@@ -171,7 +180,23 @@ public class PlantManagementApiStepDefinitions {
 
         Serenity.recordReportData()
                 .withTitle("Status Code Verification ✓")
-                .andContents("HTTP " + expectedCode + " - Created successfully\nResponse Body: " + responseBody);
+                .andContents("HTTP " + expectedCode + " - Verified\nResponse Body: " + responseBody);
+    }
+
+    @And("the response error message should contain {string}")
+    public void verifyErrorMessage(String expectedMessage) {
+        String actualMessage = response.jsonPath().getString("message");
+        if (actualMessage == null) {
+            actualMessage = response.jsonPath().getString("error");
+        }
+        
+        assertThat(actualMessage)
+                .as("Error message should contain '" + expectedMessage + "' but got '" + actualMessage + "'")
+                .containsIgnoringCase(expectedMessage);
+
+        Serenity.recordReportData()
+                .withTitle("Error Message Verification ✓")
+                .andContents("Expected to contain: " + expectedMessage + "\nActual: " + actualMessage);
     }
 
     @And("the response should contain a plant ID")
@@ -406,5 +431,53 @@ public class PlantManagementApiStepDefinitions {
         } catch (Exception e) {
             throw new AssertionError("Failed to retrieve updated plant: " + e.getMessage(), e);
         }
+    }
+
+    // ==================== API-PM-03: Delete Plant ====================
+
+    @When("the admin sends a DELETE request to remove the plant")
+    public void deletePlant() {
+        String endpoint = API_BASE_PATH + "/plants/" + createdPlantId;
+        
+        Serenity.recordReportData()
+                .withTitle("Plant Deletion Request")
+                .andContents("Endpoint: DELETE " + endpoint);
+
+        response = SerenityRest.given()
+                .baseUri(baseUrl)
+                .header("Authorization", "Bearer " + authToken)
+                .contentType("application/json")
+                .when()
+                .delete(endpoint);
+
+        Serenity.recordReportData()
+                .withTitle("Delete Response Status")
+                .andContents("HTTP " + response.getStatusCode());
+        
+        if (response.getBody() != null) {
+            Serenity.recordReportData()
+                    .withTitle("Delete Response Body")
+                    .andContents(response.getBody().asString());
+        }
+    }
+
+    @And("the deleted plant should no longer be retrievable")
+    public void verifyPlantIsDeleted() {
+        String getEndpoint = API_BASE_PATH + "/plants/" + createdPlantId;
+        
+        Response getResponse = SerenityRest.given()
+                .baseUri(baseUrl)
+                .header("Authorization", "Bearer " + authToken)
+                .contentType("application/json")
+                .when()
+                .get(getEndpoint);
+
+        assertThat(getResponse.getStatusCode())
+                .as("GET request for deleted plant " + createdPlantId + " should return 404")
+                .isEqualTo(404);
+
+        Serenity.recordReportData()
+                .withTitle("Deleted Plant Verification ✓")
+                .andContents("Successfully verified plant is deleted (GET /api/plants/" + createdPlantId + " returned 404)");
     }
 }
