@@ -39,6 +39,7 @@ public class PlantManagementUiStepDefinitions {
         Serenity.recordReportData().withTitle("Login").andContents("Admin user logged in successfully");
     }
 
+
     @And("the admin is on the Plants page")
     public void theAdminIsOnThePlantsPage() {
         plantsPage.open();

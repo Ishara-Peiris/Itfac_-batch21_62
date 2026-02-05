@@ -9,17 +9,18 @@ import org.openqa.selenium.support.FindBy;
  * Page Object for the Login page.
  * Contains all web elements and actions related to the login functionality.
  */
-@DefaultUrl("/login")
+@DefaultUrl("http://localhost:8080/ui/login")
 public class LoginPage extends PageObject {
 
-    @FindBy(id = "username")
+    @FindBy(name = "username")
     private WebElementFacade usernameField;
 
-    @FindBy(id = "password")
+    @FindBy(name = "password")
     private WebElementFacade passwordField;
 
-    @FindBy(id = "login-button")
+    @FindBy(xpath = "//button[@type='submit']")
     private WebElementFacade loginButton;
+
 
     @FindBy(css = ".error-message")
     private WebElementFacade errorMessage;
@@ -101,3 +102,4 @@ public class LoginPage extends PageObject {
         return usernameField.isVisible() && passwordField.isVisible();
     }
 }
+
