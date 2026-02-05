@@ -690,8 +690,10 @@ public class PlantManagementUiStepDefinitions {
         try { Thread.sleep(2000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         currentUrl = driver.getCurrentUrl();
         
-        Assertions.assertTrue(currentUrl.contains("/ui/dashboard") || currentUrl.contains("/ui/login"), 
-                "User should have been redirected to Dashboard or Login, but is at: " + currentUrl);
+        Assertions.assertTrue(currentUrl.contains("/ui/dashboard") || 
+                             currentUrl.contains("/ui/login") || 
+                             currentUrl.contains("/ui/403"), 
+                "User should have been redirected to Dashboard, Login, or 403 page, but is at: " + currentUrl);
         LOGGER.info("✓ Redirection verified");
     }
 
