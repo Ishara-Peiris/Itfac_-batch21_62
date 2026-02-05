@@ -390,6 +390,9 @@ public class PlantManagementUiStepDefinitions {
         initPages();
         LOGGER.info("Verifying 'Name is required' validation message");
         
+        // Wait for validation errors to be visible
+        try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        
         List<String> errors = plantsPage.getValidationErrors();
         LOGGER.info("Found validation errors: {}", errors);
         
@@ -415,6 +418,9 @@ public class PlantManagementUiStepDefinitions {
     public void priceRequiredValidationMessageShouldBeDisplayed() {
         initPages();
         LOGGER.info("Verifying 'Price is required' validation message");
+        
+        // Wait for validation errors to be visible
+        try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         
         List<String> errors = plantsPage.getValidationErrors();
         LOGGER.info("Found validation errors: {}", errors);

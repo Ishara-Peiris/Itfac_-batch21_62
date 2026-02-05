@@ -58,7 +58,7 @@ public class PlantsPage extends BasePage {
     @FindBy(css = ".success-message, .toast-success, .alert-success, [role='alert'].success")
     private WebElementFacade successMessage;
 
-    @FindBy(css = ".error-message, .validation-error, .field-error, .invalid-feedback")
+    @FindBy(css = ".error-message, .validation-error, .field-error, .invalid-feedback, .alert-danger, .text-danger, span.error")
     private List<WebElementFacade> validationErrors;
 
     // Table Interaction Helpers
