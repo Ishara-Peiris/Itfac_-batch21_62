@@ -88,6 +88,7 @@ Feature: Plant Management API
       | quantity | 10                 |
     Then the response status code should be 403
 
+
   @API-PM-09 @security @rbac
   Scenario: Standard user is unauthorized to update plant stock
     Given the API base URL is configured as "http://localhost:8080"
