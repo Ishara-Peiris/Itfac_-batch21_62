@@ -4,9 +4,6 @@ import net.serenitybdd.core.pages.PageObject;
 import net.serenitybdd.core.pages.WebElementFacade;
 import org.openqa.selenium.support.FindBy;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * Base Page Object with common functionality for all pages.
  * Other page objects can extend this class to inherit common methods.

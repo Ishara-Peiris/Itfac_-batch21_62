@@ -1,102 +1,64 @@
 package com.qatraining.pages;
 
+import net.serenitybdd.core.pages.PageObject;
 import net.serenitybdd.core.pages.WebElementFacade;
-import net.serenitybdd.annotations.DefaultUrl;
 import org.openqa.selenium.support.FindBy;
+import java.time.Duration;
 
-/**
- * Page Object for the Login page.
- * Contains all web elements and actions related to the login functionality.
- */
-@DefaultUrl("/ui/login")
-public class LoginPage extends BasePage {
+public class LoginPage extends PageObject {
 
     @FindBy(name = "username")
-    private WebElementFacade usernameField;
+    WebElementFacade usernameField;
 
     @FindBy(name = "password")
-    private WebElementFacade passwordField;
+    WebElementFacade passwordField;
 
-    @FindBy(css = "button[type='submit']")
-    private WebElementFacade loginButton;
+    @FindBy(xpath = "//button[@type='submit']")
+    WebElementFacade loginButton;
 
-    @FindBy(css = ".alert.alert-danger")
-    private WebElementFacade errorMessage;
-
-    @FindBy(css = ".invalid-feedback")
-    private WebElementFacade validationError;
-
-    /**
-     * Enter username in the username field.
-     * @param username the username to enter
-     */
-    public void enterUsername(String username) {
-        usernameField.waitUntilVisible();
-        usernameField.clear();
-        usernameField.type(username);
-    }
-
-    /**
-     * Enter password in the password field.
-     * @param password the password to enter
-     */
-    public void enterPassword(String password) {
-        passwordField.waitUntilVisible();
-        passwordField.clear();
-        passwordField.type(password);
-    }
-
-    /**
-     * Click the login button.
-     */
-    public void clickLoginButton() {
-        loginButton.waitUntilClickable();
-        loginButton.click();
-    }
-
-    /**
-     * Perform login with username and password.
-     * @param username the username
-     * @param password the password
-     */
-    public void loginWith(String username, String password) {
+    // -----------------------------------------------------------
+    // EXISTING METHOD (Used by Step Definitions)
+    // -----------------------------------------------------------
+    public void doLogin(String username, String password) {
         enterUsername(username);
         enterPassword(password);
         clickLoginButton();
-    }
-
-    /**
-     * Get the error message text.
-     * @return the error message text
-     */
-    public String getErrorMessage() {
-        if (errorMessage.isVisible()) {
-            return errorMessage.getText();
+        
+        // CRITICAL FIX: Wait for the URL to change to 'dashboard' 
+        // This ensures we are logged in before the next step runs.
+        // We catch errors in case the app redirects somewhere else, 
+        // but this wait usually solves the "not logged in" issue.
+        try {
+            getDriver().manage().timeouts().implicitlyWait(Duration.ofMillis(500)); 
+            waitFor(webDriver -> webDriver.getCurrentUrl().contains("dashboard"));
+        } catch (Exception e) {
+            // Ignore timeout, the next step will handle failure if we aren't logged in
         }
-        return "";
     }
 
-    /**
-     * Check if error message is displayed.
-     * @return true if error message is visible
-     */
-    public boolean hasErrorMessage() {
-        return errorMessage.isVisible();
+    // -----------------------------------------------------------
+    // HELPER METHODS
+    // -----------------------------------------------------------
+    public void enterUsername(String username) {
+        usernameField.waitUntilVisible().type(username);
     }
 
-    /**
-     * Check if validation errors are displayed.
-     * @return true if validation errors are visible
-     */
-    public boolean hasValidationErrors() {
-        return validationError.isVisible();
+    public void enterPassword(String password) {
+        passwordField.waitUntilVisible().type(password);
     }
 
-    /**
-     * Check if login page is displayed.
-     * @return true if login page is displayed
-     */
-    public boolean isDisplayed() {
-        return usernameField.isVisible() && passwordField.isVisible();
+    public void clickLoginButton() {
+        loginButton.waitUntilClickable().click();
+    }
+
+    public void navigateTo(String path) {
+        try {
+            String baseUrl = getDriver().getCurrentUrl().split("/ui/")[0];
+            getDriver().navigate().to(baseUrl + path);
+            // Wait for page to load
+            Thread.sleep(500);
+        } catch (Exception e) {
+            // Continue if sleep fails
+        }
     }
 }

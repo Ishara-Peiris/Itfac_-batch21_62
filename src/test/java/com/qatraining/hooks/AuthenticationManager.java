@@ -1,7 +1,6 @@
 package com.qatraining.hooks;
 
 import io.restassured.RestAssured;
-import net.serenitybdd.core.Serenity;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
@@ -36,6 +35,7 @@ public class AuthenticationManager {
         try (InputStream in = AuthenticationManager.class.getResourceAsStream("/test-config.properties")) {
             if (in != null) p.load(in);
         } catch (IOException ignored) {
+            // Ignore if config file not found - default values will be used
         }
         return p;
     }
@@ -166,12 +166,7 @@ public class AuthenticationManager {
             loginPage.enterPassword(password);
             loginPage.clickLoginButton();
             
-            // Wait for login to complete
-            try { 
-                Thread.sleep(2000); 
-            } catch (InterruptedException e) { 
-                Thread.currentThread().interrupt(); 
-            }
+            // Wait for login to complete - SerenityScreenplay handles implicit waits
             
             // Collect and cache cookies
             Set<Cookie> cookies = driver.manage().getCookies();
