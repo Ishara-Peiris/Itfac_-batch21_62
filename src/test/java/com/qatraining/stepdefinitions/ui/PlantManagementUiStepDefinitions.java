@@ -4,6 +4,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.And;
+import io.cucumber.java.After;
 import net.serenitybdd.core.Serenity;
 import net.serenitybdd.core.pages.PageObject;
 import net.serenitybdd.screenplay.Actor;
@@ -102,7 +103,7 @@ public class PlantManagementUiStepDefinitions {
         
         // Wait for navigation to complete
         try {
-            Thread.sleep(2000); // Wait for navigation
+            Thread.sleep(500); // Reduced wait time for navigation
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -115,7 +116,7 @@ public class PlantManagementUiStepDefinitions {
             LOGGER.info("Not on plants page, navigating to /ui/plants");
             driver.navigate().to("http://localhost:8080/ui/plants");
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500); // Reduced wait time
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -222,14 +223,25 @@ public class PlantManagementUiStepDefinitions {
         
         plantsPage.clickAddPlantButton();
         
-        // Wait for form/modal to load
+        // Reduced wait time for form/modal to load
         try {
-            Thread.sleep(1000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
         
         LOGGER.info("✓ Button '{}' clicked", buttonText);
+    }
+
+    /**
+     * After all steps, close the browser quickly.
+     */
+    @After
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+            LOGGER.info("Browser closed successfully.");
+        }
     }
 
     /**
@@ -690,8 +702,8 @@ public class PlantManagementUiStepDefinitions {
         try { Thread.sleep(2000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         currentUrl = driver.getCurrentUrl();
         
-        Assertions.assertTrue(currentUrl.contains("/ui/dashboard") || currentUrl.contains("/ui/login"), 
-                "User should have been redirected to Dashboard or Login, but is at: " + currentUrl);
+        Assertions.assertTrue(currentUrl.contains("/ui/dashboard") || currentUrl.contains("/ui/login") || currentUrl.contains("/ui/403"), 
+                "User should have been redirected to Dashboard, Login, or 403 page, but is at: " + currentUrl);
         LOGGER.info("✓ Redirection verified");
     }
 

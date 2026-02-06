@@ -6,6 +6,7 @@ import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Page Object for the Plants Management page.
@@ -102,15 +103,7 @@ public class PlantsPage extends BasePage {
      * Check if page has fully loaded (wait for loading spinner to disappear)
      */
     public void waitForPageToLoad() {
-        waitFor(driver -> {
-            try {
-                // Check if table is visible or container is visible
-                return (plantsContainer.isPresent() && plantsContainer.isVisible()) || 
-                       (tableHeader.isPresent() && tableHeader.isVisible());
-            } catch (Exception e) {
-                return false;
-            }
-        });
+        withTimeoutOf(2, TimeUnit.SECONDS).waitFor(pageHeader);
     }
 
     /**
@@ -140,10 +133,10 @@ public class PlantsPage extends BasePage {
     }
 
     /**
-     * Click the Add Plant button.
+     * Click the Add Plant button with reduced wait time.
      */
     public void clickAddPlantButton() {
-        addPlantButton.waitUntilClickable();
+        addPlantButton.withTimeoutOf(2, TimeUnit.SECONDS).waitUntilClickable();
         addPlantButton.click();
     }
 
@@ -219,10 +212,10 @@ public class PlantsPage extends BasePage {
     }
 
     /**
-     * Submit the plant form.
+     * Submit the plant form with reduced wait time.
      */
     public void submitPlantForm() {
-        submitButton.waitUntilClickable();
+        submitButton.withTimeoutOf(2, TimeUnit.SECONDS).waitUntilClickable();
         submitButton.click();
     }
 
@@ -267,8 +260,8 @@ public class PlantsPage extends BasePage {
     }
 
     /**
-     * Get all validation error messages.
-     * @return list of error message texts
+     * Retrieve all validation error messages displayed on the page.
+     * @return List of validation error messages
      */
     public List<String> getValidationErrors() {
         return validationErrors.stream()
