@@ -4,6 +4,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.And;
+import io.cucumber.java.After;
 import net.serenitybdd.core.Serenity;
 import net.serenitybdd.core.pages.PageObject;
 import net.serenitybdd.screenplay.Actor;
@@ -102,7 +103,8 @@ public class PlantManagementUiStepDefinitions {
         
         // Wait for navigation to complete
         try {
-            Thread.sleep(2000); // Wait for navigation
+            // Thread.sleep(2000); // Wait for navigation
+            Thread.sleep(500); // Reduced wait time for navigation
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -115,7 +117,8 @@ public class PlantManagementUiStepDefinitions {
             LOGGER.info("Not on plants page, navigating to /ui/plants");
             driver.navigate().to("http://localhost:8080/ui/plants");
             try {
-                Thread.sleep(1000);
+                // Thread.sleep(1000);
+                Thread.sleep(500); // Reduced wait time
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -222,14 +225,19 @@ public class PlantManagementUiStepDefinitions {
         
         plantsPage.clickAddPlantButton();
         
-        // Wait for form/modal to load
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        
+        // No explicit sleep needed - moving to dynamic waits in next steps if required
         LOGGER.info("✓ Button '{}' clicked", buttonText);
+    }
+
+    /**
+     * After all steps, close the browser quickly.
+     */
+    @After
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+            LOGGER.info("Browser closed successfully.");
+        }
     }
 
     /**

@@ -6,6 +6,7 @@ import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Page Object for the Plants Management page.
@@ -111,6 +112,7 @@ public class PlantsPage extends BasePage {
                 return false;
             }
         });
+        withTimeoutOf(2, TimeUnit.SECONDS).waitFor(pageHeader);
     }
 
     /**
@@ -143,8 +145,7 @@ public class PlantsPage extends BasePage {
      * Click the Add Plant button.
      */
     public void clickAddPlantButton() {
-        addPlantButton.waitUntilClickable();
-        addPlantButton.click();
+        addPlantButton.withTimeoutOf(2, TimeUnit.SECONDS).waitUntilClickable().click();
     }
 
     /**
@@ -223,6 +224,7 @@ public class PlantsPage extends BasePage {
      */
     public void submitPlantForm() {
         submitButton.waitUntilClickable();
+        submitButton.withTimeoutOf(2, TimeUnit.SECONDS).waitUntilClickable();
         submitButton.click();
     }
 
