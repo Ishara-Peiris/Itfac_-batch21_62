@@ -1,0 +1,2 @@
+Feature: Category Management UI
+
