@@ -1,16 +1,15 @@
 package com.qatraining.pages;
 
-import net.serenitybdd.core.pages.PageObject;
-import net.serenitybdd.annotations.DefaultUrl;
 import net.serenitybdd.core.pages.WebElementFacade;
+import net.serenitybdd.annotations.DefaultUrl;
 import org.openqa.selenium.support.FindBy;
 
 /**
  * Page Object for the Login page.
  * Contains all web elements and actions related to the login functionality.
  */
-@DefaultUrl("http://localhost:8080/ui/login")
-public class LoginPage extends PageObject {
+@DefaultUrl("/ui/login")
+public class LoginPage extends BasePage {
 
     @FindBy(name = "username")
     private WebElementFacade usernameField;
@@ -18,14 +17,13 @@ public class LoginPage extends PageObject {
     @FindBy(name = "password")
     private WebElementFacade passwordField;
 
-    @FindBy(xpath = "//button[@type='submit']")
+    @FindBy(css = "button[type='submit']")
     private WebElementFacade loginButton;
 
-
-    @FindBy(css = ".error-message")
+    @FindBy(css = ".alert.alert-danger")
     private WebElementFacade errorMessage;
 
-    @FindBy(css = ".validation-error")
+    @FindBy(css = ".invalid-feedback")
     private WebElementFacade validationError;
 
     /**
@@ -102,4 +100,3 @@ public class LoginPage extends PageObject {
         return usernameField.isVisible() && passwordField.isVisible();
     }
 }
-

@@ -31,6 +31,7 @@ public class SaleManagementUiStepDefinitions {
     @Then("Sales management table should be visible")
     public void verify_table(){
         that(salesPage.salesTable.isDisplayed()).isTrue();
+        that(salesPage.addSaleButton.isDisplayed()).isTrue();
     }
 
     @When("Admin clicks the {string} button")
