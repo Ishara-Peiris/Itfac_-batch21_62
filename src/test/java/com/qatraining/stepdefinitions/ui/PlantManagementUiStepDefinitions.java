@@ -747,9 +747,24 @@ public class PlantManagementUiStepDefinitions {
     public void plantShouldShowDefaultPlaceholder(String plantName) {
         initPages();
         LOGGER.info("Verifying default placeholder for plant: {}", plantName);
+        
+        // Wait for the plant to appear in the table (max 5 seconds)
+        long startTime = System.currentTimeMillis();
+        boolean found = false;
+        while (System.currentTimeMillis() - startTime < 5000) {
+            if (plantsPage.isPlantInTable(plantName)) {
+                found = true;
+                break;
+            }
+            try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        }
+        
+        Assertions.assertTrue(found, "Plant '" + plantName + "' should be present in the table");
+        
         boolean isPlaceholder = plantsPage.isDefaultPlaceholderDisplayed(plantName);
         String actualSrc = plantsPage.getPlantImageSrc(plantName);
         LOGGER.info("Actual Image Src: {}", actualSrc);
+        
         Assertions.assertTrue(isPlaceholder, 
                 "Expected default placeholder for '" + plantName + "' but found: " + actualSrc);
         LOGGER.info("✓ Placeholder verification passed");

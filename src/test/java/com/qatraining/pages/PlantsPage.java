@@ -274,6 +274,7 @@ public class PlantsPage extends BasePage {
         return validationErrors.stream()
                 .filter(WebElementFacade::isVisible)
                 .map(WebElementFacade::getText)
+                .filter(text -> !text.trim().equalsIgnoreCase("Logout"))
                 .collect(Collectors.toList());
     }
 
