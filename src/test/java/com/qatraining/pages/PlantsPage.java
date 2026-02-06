@@ -243,6 +243,21 @@ public class PlantsPage extends BasePage {
     }
 
     /**
+     * Wait for the add plant form to become visible.
+     */
+    public void waitForAddPlantForm() {
+        plantNameField.waitUntilVisible();
+        plantPriceField.waitUntilVisible();
+    }
+
+    /**
+     * Wait for validation errors to become visible.
+     */
+    public void waitForValidationErrors() {
+        waitFor(driver -> !getValidationErrors().isEmpty());
+    }
+
+    /**
      * Check if modal is closed.
      * @return true if modal is not visible
      */
