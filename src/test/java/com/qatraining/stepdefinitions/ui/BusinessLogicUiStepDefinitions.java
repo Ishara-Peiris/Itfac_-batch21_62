@@ -218,4 +218,10 @@ public class BusinessLogicUiStepDefinitions {
                 salesPage.isSalesTableVisible());
     }
 
+    @Then("the category list displays category data")
+    public void verify_category_list_displays_data() {
+        Assert.assertTrue("Category list should be displayed with data",
+                categoryPage.areCategoriesDisplayed());
+    }
+
 } 

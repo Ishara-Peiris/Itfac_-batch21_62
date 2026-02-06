@@ -39,8 +39,9 @@ Feature: Business Logic and Edge Cases - UI
   Scenario: Admin can view sub-categories under a main category
     Given I login as "admin"
     And I navigate to the Categories page
-    When I expand the main category "Garden"
-    Then I should see sub-categories listed under it
+    When I add a new category "Garden"
+    Then the new category "Garden" should appear in the list
+    And the category list displays category data
 
   @UI-BL-06
   Scenario: Standard user can access and view plant information

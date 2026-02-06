@@ -58,7 +58,51 @@ public class CategoryPage extends PageObject {
     }
 
     public void expandCategory(String name) {
-        findBy("//tr[contains(.,'" + name + "')]").click(); 
+        try {
+            // Small wait to ensure page is fully loaded
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
+        // Try to find and click the category row using multiple strategies
+        WebElementFacade categoryElement = null;
+        
+        try {
+            // Try direct table row first
+            categoryElement = findBy("//tr[contains(.,'" + name + "')]");
+            if (categoryElement != null && categoryElement.isDisplayed()) {
+                categoryElement.waitUntilClickable().click();
+                return;
+            }
+        } catch (Exception e) {
+            // Try next strategy
+        }
+        
+        try {
+            // Try finding a div or any clickable element containing the category name
+            categoryElement = findBy("//*[contains(.,'" + name + "') and (@role='button' or @onclick or contains(@class, 'clickable') or contains(@class, 'row'))]");
+            if (categoryElement != null && categoryElement.isDisplayed()) {
+                categoryElement.waitUntilClickable().click();
+                return;
+            }
+        } catch (Exception e) {
+            // Try next strategy
+        }
+        
+        try {
+            // Try any link or button containing the category name
+            categoryElement = findBy("//a[contains(.,'" + name + "')] | //button[contains(.,'" + name + "')]");
+            if (categoryElement != null && categoryElement.isDisplayed()) {
+                categoryElement.waitUntilClickable().click();
+                return;
+            }
+        } catch (Exception e) {
+            // If this fails, throw original error
+        }
+        
+        // If all strategies fail, try the original approach which will throw proper error
+        findBy("//tr[contains(.,'" + name + "')]").waitUntilVisible().click();
     }
 
     public boolean areSubCategoriesVisible() {
