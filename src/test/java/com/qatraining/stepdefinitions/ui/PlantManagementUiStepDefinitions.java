@@ -748,16 +748,26 @@ public class PlantManagementUiStepDefinitions {
         initPages();
         LOGGER.info("Verifying default placeholder for plant: {}", plantName);
         
-        // Wait for the plant to appear in the table (max 5 seconds)
-        long startTime = System.currentTimeMillis();
-        boolean found = false;
-        while (System.currentTimeMillis() - startTime < 5000) {
-            if (plantsPage.isPlantInTable(plantName)) {
-                found = true;
-                break;
-            }
-            try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        // Robust wait: ensure modal is closed first
+        if (plantsPage.isAddPlantFormDisplayed()) {
+            plantsPage.waitForModalToClose();
         }
+        
+        // Wait for the plant to appear in the table with potential refresh
+        try {
+            plantsPage.waitForPlantInTable(plantName);
+        } catch (Exception e) {
+            LOGGER.info("Plant not found immediately with simple wait, refreshing page...");
+            driver.navigate().refresh();
+            plantsPage.waitForPageToLoad();
+            try {
+                plantsPage.waitForPlantInTable(plantName);
+            } catch (Exception ex) {
+                // If still not found, we proceed to assertion which will fail with clear message
+            }
+        }
+        
+        boolean found = plantsPage.isPlantInTable(plantName);
         
         Assertions.assertTrue(found, "Plant '" + plantName + "' should be present in the table");
         

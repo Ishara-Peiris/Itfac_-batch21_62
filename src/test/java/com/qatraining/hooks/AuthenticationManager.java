@@ -167,11 +167,9 @@ public class AuthenticationManager {
             loginPage.clickLoginButton();
             
             // Wait for login to complete
-            try { 
-                Thread.sleep(2000); 
-            } catch (InterruptedException e) { 
-                Thread.currentThread().interrupt(); 
-            }
+            // Wait for login to complete by waiting for URL to change or cookies to be set
+            new org.openqa.selenium.support.ui.WebDriverWait(driver, java.time.Duration.ofSeconds(10))
+                .until(d -> !d.getCurrentUrl().contains("login"));
             
             // Collect and cache cookies
             Set<Cookie> cookies = driver.manage().getCookies();

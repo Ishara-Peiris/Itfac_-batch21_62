@@ -266,6 +266,21 @@ public class PlantsPage extends BasePage {
     }
 
     /**
+     * Wait for the modal to close.
+     */
+    public void waitForModalToClose() {
+        waitFor(driver -> !modal.isVisible());
+    }
+
+    /**
+     * Wait for a plant to appear in the table.
+     * @param plantName The name of the plant to wait for.
+     */
+    public void waitForPlantInTable(String plantName) {
+        waitFor(driver -> isPlantInTable(plantName));
+    }
+
+    /**
      * Check if form modal is still open.
      * @return true if modal is visible
      */
