@@ -7,15 +7,15 @@ import net.serenitybdd.core.Serenity;
 import net.serenitybdd.rest.SerenityRest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.qatraining.hooks.AuthenticationManager;
+import com.qatraining.hooks.Authenticationmanager;
 
 /**
  * Common hooks for Plant Management Cucumber scenarios.
  * These hooks run before and after each scenario.
  */
-public class Hooks {
+public class Hook {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Hooks.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Hook.class);
 
     @Before
     public void beforeScenario(Scenario scenario) {
@@ -69,12 +69,12 @@ public class Hooks {
      * Uses cached token from AuthenticationManager for efficiency.
      */
     private void cleanupTestPlants() {
-        String baseUrl = AuthenticationManager.getBaseUrl();
+        String baseUrl = Authenticationmanager.getBaseUrl();
         LOGGER.info("Running cleanupTestPlants against {}", baseUrl);
 
         try {
             // Get cached or newly obtained token
-            String token = AuthenticationManager.getAdminToken();
+            String token = Authenticationmanager.getAdminToken();
             
             if (token == null || token.isEmpty()) {
                 LOGGER.warn("No token available for cleanup; skipping cleanup");

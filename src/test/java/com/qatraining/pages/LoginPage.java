@@ -5,7 +5,7 @@ import net.serenitybdd.core.pages.WebElementFacade;
 import org.openqa.selenium.support.FindBy;
 import java.time.Duration;
 
-public class LoginPage extends PageObject {
+public class Loginpage extends PageObject {
 
     @FindBy(name = "username")
     WebElementFacade usernameField;

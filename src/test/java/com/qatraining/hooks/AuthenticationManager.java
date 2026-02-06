@@ -5,7 +5,7 @@ import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.qatraining.pages.LoginPage;
+import com.qatraining.pages.Loginpage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Centralized authentication manager for UI and API tests.
  * Manages login sessions and tokens to avoid repeated logins across test scenarios.
  */
-public class AuthenticationManager {
+public class Authenticationmanager {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Authenticationmanager.class);
     private static final Properties CONFIG = loadConfig();
     
     // Cache for UI session cookies - one per role
@@ -32,7 +32,7 @@ public class AuthenticationManager {
     
     private static Properties loadConfig() {
         Properties p = new Properties();
-        try (InputStream in = AuthenticationManager.class.getResourceAsStream("/test-config.properties")) {
+        try (InputStream in = Authenticationmanager.class.getResourceAsStream("/test-config.properties")) {
             if (in != null) p.load(in);
         } catch (IOException ignored) {
             // Ignore if config file not found - default values will be used
@@ -159,7 +159,7 @@ public class AuthenticationManager {
         LOGGER.info("Performing UI login for role: {} with username: {}", role, username);
         
         try {
-            LoginPage loginPage = new LoginPage();
+            Loginpage loginPage = new Loginpage();
             loginPage.open();
             
             loginPage.enterUsername(username);

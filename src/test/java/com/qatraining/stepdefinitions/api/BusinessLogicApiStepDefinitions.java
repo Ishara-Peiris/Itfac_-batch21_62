@@ -21,9 +21,9 @@ public class BusinessLogicApiStepDefinitions {
     public void authenticate(String role) {
         // Use centralized AuthenticationManager to obtain JWT tokens
         if (role.equalsIgnoreCase("admin")) {
-            this.authToken = com.qatraining.hooks.AuthenticationManager.getAdminToken();
+            this.authToken = com.qatraining.hooks.Authenticationmanager.getAdminToken();
         } else {
-            this.authToken = com.qatraining.hooks.AuthenticationManager.getTestUserToken();
+            this.authToken = com.qatraining.hooks.Authenticationmanager.getTestUserToken();
         }
     }
 

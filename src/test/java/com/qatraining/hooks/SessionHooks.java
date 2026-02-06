@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
  * Hook to manage browser sessions for UI tests.
  * Uses AuthenticationManager for centralized session and token caching.
  */
-public class SessionHooks {
+public class Sessionhooks {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(SessionHooks.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Sessionhooks.class);
 
     /**
      * Before each scenario tagged with @admin, login as admin if not already logged in.
@@ -22,13 +22,13 @@ public class SessionHooks {
         LOGGER.info("Setting up admin session");
         WebDriver driver = Serenity.getDriver();
         
-        if (!AuthenticationManager.hasActiveSession("admin")) {
+        if (!Authenticationmanager.hasActiveSession("admin")) {
             LOGGER.info("Admin session not found, performing login");
-            AuthenticationManager.loginAsAdmin(driver);
+            Authenticationmanager.loginAsAdmin(driver);
         } else {
             LOGGER.info("Admin session already cached, injecting cookies");
-            AuthenticationManager.injectSessionCookies(driver, "admin");
-            driver.navigate().to(AuthenticationManager.getBaseUrl() + "/ui/plants");
+            Authenticationmanager.injectSessionCookies(driver, "admin");
+            driver.navigate().to(Authenticationmanager.getBaseUrl() + "/ui/plants");
         }
     }
 
@@ -40,13 +40,13 @@ public class SessionHooks {
         LOGGER.info("Setting up test user session");
         WebDriver driver = Serenity.getDriver();
         
-        if (!AuthenticationManager.hasActiveSession("testuser")) {
+        if (!Authenticationmanager.hasActiveSession("testuser")) {
             LOGGER.info("Test user session not found, performing login");
-            AuthenticationManager.loginAsTestUser(driver);
+            Authenticationmanager.loginAsTestUser(driver);
         } else {
             LOGGER.info("Test user session already cached, injecting cookies");
-            AuthenticationManager.injectSessionCookies(driver, "testuser");
-            driver.navigate().to(AuthenticationManager.getBaseUrl() + "/ui/plants");
+            Authenticationmanager.injectSessionCookies(driver, "testuser");
+            driver.navigate().to(Authenticationmanager.getBaseUrl() + "/ui/plants");
         }
     }
 }

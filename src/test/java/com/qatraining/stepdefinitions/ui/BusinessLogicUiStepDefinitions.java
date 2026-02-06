@@ -10,7 +10,7 @@ import org.junit.Assert;
 public class BusinessLogicUiStepDefinitions {
 
     @Steps
-    LoginPage loginPage;
+    Loginpage loginPage;
 
     @Steps
     CategoryPage categoryPage;
@@ -19,7 +19,7 @@ public class BusinessLogicUiStepDefinitions {
     PlantPage plantPage;
 
     @Steps
-    SalesPage salesPage;
+    SalePage salesPage;
 
     // -------------------------------------------------------------------------
     // BACKGROUND & LOGIN STEPS

@@ -4,7 +4,7 @@ import net.serenitybdd.core.pages.PageObject;
 import net.serenitybdd.core.pages.WebElementFacade;
 import org.openqa.selenium.support.FindBy;
 
-public class SalesPage extends PageObject {
+public class SalePage extends PageObject {
 
     @FindBy(xpath = "//table")
     WebElementFacade salesTable;
