@@ -168,7 +168,7 @@ public class AuthenticationManager {
             
             // Wait for login to complete
             try { 
-                Thread.sleep(2000); 
+                Thread.sleep(2);
             } catch (InterruptedException e) { 
                 Thread.currentThread().interrupt(); 
             }

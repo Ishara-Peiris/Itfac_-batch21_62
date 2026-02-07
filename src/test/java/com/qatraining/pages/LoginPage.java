@@ -4,6 +4,8 @@ import net.serenitybdd.core.pages.WebElementFacade;
 import net.serenitybdd.annotations.DefaultUrl;
 import org.openqa.selenium.support.FindBy;
 
+import java.time.Duration;
+
 /**
  * Page Object for the Login page.
  * Contains all web elements and actions related to the login functionality.
@@ -50,8 +52,9 @@ public class LoginPage extends BasePage {
      * Click the login button.
      */
     public void clickLoginButton() {
-        loginButton.waitUntilClickable();
-        loginButton.click();
+        System.out.println("Login button visible: " + loginButton.isVisible());
+        System.out.println("Login button enabled: " + loginButton.isEnabled());
+        loginButton.waitUntilClickable().click();
     }
 
     /**
@@ -98,5 +101,8 @@ public class LoginPage extends BasePage {
      */
     public boolean isDisplayed() {
         return usernameField.isVisible() && passwordField.isVisible();
+    }
+
+    public void clickLogin() {
     }
 }
