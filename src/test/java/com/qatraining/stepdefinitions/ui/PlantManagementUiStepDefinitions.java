@@ -102,7 +102,7 @@ public class PlantManagementUiStepDefinitions {
         
         // Wait for navigation to complete
         try {
-            Thread.sleep(2000); // Wait for navigation
+            Thread.sleep(10); // Wait for navigation
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -115,7 +115,7 @@ public class PlantManagementUiStepDefinitions {
             LOGGER.info("Not on plants page, navigating to /ui/plants");
             driver.navigate().to("http://localhost:8080/ui/plants");
             try {
-                Thread.sleep(1000);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -224,7 +224,7 @@ public class PlantManagementUiStepDefinitions {
         
         // Wait for form/modal to load
         try {
-            Thread.sleep(1000);
+            Thread.sleep(10);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -312,7 +312,7 @@ public class PlantManagementUiStepDefinitions {
         
         // Wait for form submission and page update
         try {
-            Thread.sleep(2000);
+            Thread.sleep(10);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

@@ -56,8 +56,6 @@ Scenario: API-SM-10 Get sales with pagination and sorting
   When Admin retrieves sales page 0 size 5 sorted by id descending
   Then Paginated sales should be returned correctly
 
-
-
 @api @sales-management
 Scenario: API-SM-04 Unauthorized plant sale attempt
   Given Non-admin user is authenticated
