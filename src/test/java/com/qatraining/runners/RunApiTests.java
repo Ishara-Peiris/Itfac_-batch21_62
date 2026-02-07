@@ -8,15 +8,15 @@ import org.junit.platform.suite.api.Suite;
 import static io.cucumber.junit.platform.engine.Constants.*;
 
 /**
- * Test Runner for Plant Management API tests only.
- * Runs feature files tagged with @api and @plant-management.
- * Test IDs: API-PM-01, API-PM-02, API-PM-03
+ * Test Runner for all API tests.
+ * Runs feature files tagged with @api.
+ * Includes Plant Management, Sales Management, and other API features.
  */
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("features/api")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "io.cucumber.core.plugin.SerenityReporterParallel,pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.qatraining.stepdefinitions")
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@api and @plant-management and not @ignore")
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@api and not @ignore")
 public class RunApiTests {
 }

@@ -8,15 +8,15 @@ import org.junit.platform.suite.api.Suite;
 import static io.cucumber.junit.platform.engine.Constants.*;
 
 /**
- * Test Runner for Plant Management UI tests only.
- * Runs feature files tagged with @ui and @plant-management.
- * Test IDs: UI-PM-02, UI-PM-03, UI-PM-04
+ * Test Runner for all UI tests.
+ * Runs feature files tagged with @ui.
+ * Includes Plant Management, Sales Management, and other UI features.
  */
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("features/ui")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "io.cucumber.core.plugin.SerenityReporterParallel,pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.qatraining.stepdefinitions")
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@ui and @plant-management and not @ignore")
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@ui and not @ignore")
 public class RunUiTests {
 }

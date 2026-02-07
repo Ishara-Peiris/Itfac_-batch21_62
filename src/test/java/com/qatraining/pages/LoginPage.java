@@ -1,16 +1,17 @@
 package com.qatraining.pages;
 
-import net.serenitybdd.core.pages.PageObject;
-import net.serenitybdd.annotations.DefaultUrl;
 import net.serenitybdd.core.pages.WebElementFacade;
+import net.serenitybdd.annotations.DefaultUrl;
 import org.openqa.selenium.support.FindBy;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Page Object for the Login page.
  * Contains all web elements and actions related to the login functionality.
  */
-@DefaultUrl("http://localhost:8080/ui/login")
-public class LoginPage extends PageObject {
+@DefaultUrl("/ui/login")
+public class LoginPage extends BasePage {
 
     @FindBy(name = "username")
     private WebElementFacade usernameField;
@@ -18,14 +19,13 @@ public class LoginPage extends PageObject {
     @FindBy(name = "password")
     private WebElementFacade passwordField;
 
-    @FindBy(xpath = "//button[@type='submit']")
+    @FindBy(css = "button[type='submit']")
     private WebElementFacade loginButton;
 
-
-    @FindBy(css = ".error-message")
+    @FindBy(css = ".alert.alert-danger")
     private WebElementFacade errorMessage;
 
-    @FindBy(css = ".validation-error")
+    @FindBy(css = ".invalid-feedback")
     private WebElementFacade validationError;
 
     /**
@@ -34,6 +34,7 @@ public class LoginPage extends PageObject {
      */
     public void enterUsername(String username) {
         usernameField.waitUntilVisible();
+        usernameField.withTimeoutOf(2, TimeUnit.SECONDS).waitUntilVisible();
         usernameField.clear();
         usernameField.type(username);
     }
@@ -44,6 +45,7 @@ public class LoginPage extends PageObject {
      */
     public void enterPassword(String password) {
         passwordField.waitUntilVisible();
+        passwordField.withTimeoutOf(2, TimeUnit.SECONDS).waitUntilVisible();
         passwordField.clear();
         passwordField.type(password);
     }
@@ -53,18 +55,35 @@ public class LoginPage extends PageObject {
      */
     public void clickLoginButton() {
         loginButton.waitUntilClickable();
+        loginButton.withTimeoutOf(2, TimeUnit.SECONDS).waitUntilClickable();
         loginButton.click();
     }
 
     /**
      * Perform login with username and password.
+     * Ensure the login button is explicitly set to type 'submit'.
+     */
+    public void ensureSubmitButtonType() {
+        evaluateJavascript("arguments[0].setAttribute('type', 'submit');", loginButton);
+    }
+
+    /**
+     * Perform login with username and password, ensuring reduced wait time after navigation.
      * @param username the username
      * @param password the password
      */
     public void loginWith(String username, String password) {
+        ensureSubmitButtonType();
         enterUsername(username);
         enterPassword(password);
         clickLoginButton();
+    }
+
+    /**
+     * Wait for the login page to load with reduced timeout.
+     */
+    public void waitForPageToLoad() {
+        withTimeoutOf(2, TimeUnit.SECONDS).waitFor(usernameField);
     }
 
     /**
@@ -102,4 +121,3 @@ public class LoginPage extends PageObject {
         return usernameField.isVisible() && passwordField.isVisible();
     }
 }
-

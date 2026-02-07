@@ -33,6 +33,11 @@ public class SaleManagementUiStepDefinitions {
         that(salesPage.salesTable.isDisplayed()).isTrue();
     }
 
+    @Then("Add sale button should be visible")
+    public void verify_button(){
+        that(salesPage.addSaleButton.isDisplayed()).isTrue();
+    }
+
     @When("Admin clicks the {string} button")
     public void admin_clicks_button(String buttonName) {
         if (buttonName.equals("Add Sale")) {
