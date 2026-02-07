@@ -351,6 +351,8 @@ public class PlantManagementUiStepDefinitions {
     public void newPlantShouldAppearInTable(String plantName) {
         initPages();
         LOGGER.info("Verifying plant '{}' appears in the table", plantName);
+
+        plantsPage.waitForPlantInTable(plantName);
         
         Assertions.assertTrue(
                 plantsPage.isPlantInTable(plantName),
@@ -489,6 +491,8 @@ public class PlantManagementUiStepDefinitions {
     public void thePlantShouldHavePriceInTheTable(String plantName, String expectedPrice) {
         initPages();
         LOGGER.info("Verifying price for plant '{}' is '{}'", plantName, expectedPrice);
+
+        plantsPage.waitForPlantInTable(plantName);
         
         String actualPrice = plantsPage.getPlantPriceFromTable(plantName);
         LOGGER.info("Actual price from table: {}", actualPrice);
@@ -593,6 +597,8 @@ public class PlantManagementUiStepDefinitions {
     public void plantShouldHaveCategoryAndPriceInTable(String plantName, String expectedCategory, String expectedPrice) {
         initPages();
         LOGGER.info("Verifying category and price for plant: {}", plantName);
+
+        plantsPage.waitForPlantInTable(plantName);
         
         String actualCategory = plantsPage.getPlantCategoryFromTable(plantName);
         String actualPrice = plantsPage.getPlantPriceFromTable(plantName);
