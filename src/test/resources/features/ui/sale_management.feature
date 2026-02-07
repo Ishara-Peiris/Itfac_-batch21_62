@@ -1,10 +1,15 @@
-
 Feature: Sales Management UI
 @mysales
-Scenario: Admin can view sales management controls
+Scenario: Admin can view sales management (table) controls
   Given Admin user logs into the system
   When Admin navigates to Sales page
   Then Sales management table should be visible
+
+@mysales
+Scenario: Admin can view sales management (add sale button) controls
+  Given Admin user logs into the system
+  When Admin navigates to Sales page
+  Then Add sale button should be visible
 
 @mysales
 Scenario: Admin can open Add Sale form and see plant dropdown
@@ -26,7 +31,7 @@ Scenario: Admin can open Add Sale form and see plant dropdown
 
 
 @mysales
-Scenario: Sales form should validate positive quantity
+Scenario: Sales form should not submit with 0 quantity
   Given Admin user logs into the system
   When Admin navigates to Sales page
   And Admin clicks the "Add Sale" button
@@ -79,6 +84,3 @@ Scenario: Read-only user can view sales history but cannot create sales
   When User navigates to Sales page
   Then Sales history should be visible to read only user
   And User should not see option to add sales
-
-
-

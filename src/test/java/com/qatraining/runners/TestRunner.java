@@ -9,13 +9,20 @@ import static io.cucumber.junit.platform.engine.Constants.*;
 
 /**
  * Test Runner for all Cucumber tests (UI and API).
- * Runs all feature files in the features directory except those tagged with @ignore.
+ * Supports tag filtering via -Dcucumber.filter.tags system property.
+ * Default: Runs all feature files except those tagged with @ignore.
  */
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("features")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "io.cucumber.core.plugin.SerenityReporterParallel,pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.qatraining.stepdefinitions")
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @ignore")
 public class TestRunner {
+    static {
+        // Set default tag filter if not provided via command line
+        String tagsProperty = System.getProperty("cucumber.filter.tags");
+        if (tagsProperty == null || tagsProperty.isEmpty()) {
+            System.setProperty("cucumber.filter.tags", "not @ignore");
+        }
+    }
 }

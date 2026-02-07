@@ -143,6 +143,9 @@
                         --add-opens java.base/java.time=ALL-UNNAMED
                         --add-opens java.base/java.lang.reflect=ALL-UNNAMED
                     </argLine>
+                    <systemPropertyVariables>
+                        <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
+                    </systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>

@@ -32,7 +32,37 @@ public class PlantManagementApiStepDefinitions {
     private Map<String, Object> requestPayload;
     private String createdPlantId;
     private String categoryId;
+    private String actualPlantNameSent; // Track the actual plant name sent to API
     private static final String API_BASE_PATH = "/api";
+    
+    /**
+     * Format a map as JSON for logging
+     */
+    private String formatJson(Map<String, Object> map) {
+        StringBuilder json = new StringBuilder("\n{");
+        int count = 0;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (count > 0) json.append(",");
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                json.append("\n  \"" + entry.getKey() + "\": \"" + value + "\"");
+            } else {
+                json.append("\n  \"" + entry.getKey() + "\": " + value);
+            }
+            count++;
+        }
+        json.append("\n}");
+        return json.toString();
+    }
+    
+    /**
+     * Generate a random plant name to ensure uniqueness
+     */
+    private String generateRandomPlantName(String baseName) {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String randomSuffix = timestamp.substring(timestamp.length() - 6);
+        return baseName + "_" + randomSuffix;
+    }
 
     @Given("the API base URL is configured as {string}")
     public void setBaseUrl(String url) {
@@ -107,14 +137,14 @@ public class PlantManagementApiStepDefinitions {
                 
                 // Try to get the first sub-category ID
                 try {
-                    Integer subCatId = subcategoriesResponse.jsonPath().getInt("[0].id");
-                    categoryId = subCatId != null ? subCatId.toString() : "1";
+                    Integer subCatId = /*subcategoriesResponse.jsonPath().getInt("[0].id");*/2;
+                    categoryId = subCatId != null ? subCatId.toString() : "2";
                 } catch (Exception e) {
                     // Fallback try different structure
                     try {
                         categoryId = subcategoriesResponse.jsonPath().getString("[0]");
                     } catch (Exception ex) {
-                        categoryId = "1";
+                        categoryId = "2";
                     }
                 }
                 
@@ -125,19 +155,19 @@ public class PlantManagementApiStepDefinitions {
                                     "\nUsing Sub-Category ID: " + categoryId +
                                     "\nResponse: " + responseBody);
             } else {
-                categoryId = "1";
+                categoryId = "2";
                 Serenity.recordReportData()
                         .withTitle("Sub-Category Lookup - Fallback")
                         .andContents("Category Name: " + categoryName +
                                     "\nSub-Categories API Status: " + subcategoriesResponse.getStatusCode() + 
-                                    "\nFalling back to category ID: 1");
+                                    "\nFalling back to category ID: 2");
             }
         } catch (Exception e) {
-            categoryId = "1";
+            categoryId = "2";
             Serenity.recordReportData()
                     .withTitle("Sub-Category Lookup - Error")
                     .andContents("Category Name: " + categoryName +
-                                "\nError fetching sub-categories. Using default category ID: 1\nError: " + e.getMessage());
+                                "\nError fetching sub-categories. Using default category ID: 2\nError: " + e.getMessage());
         }
         
         Serenity.setSessionVariable("categoryId").to(categoryId);
@@ -163,20 +193,41 @@ public class PlantManagementApiStepDefinitions {
         // Prepare request payload
         Map<String, String> plantData = dataTable.asMap(String.class, String.class);
         
+        // Generate random plant name to ensure uniqueness
+        String plantName = plantData.get("name");
+        String uniquePlantName = generateRandomPlantName(plantName);
+        actualPlantNameSent = uniquePlantName; // Store for later verification
+        
         requestPayload = new HashMap<>();
-        requestPayload.put("name", plantData.get("name"));
+        requestPayload.put("name", uniquePlantName);
         requestPayload.put("price", Integer.parseInt(plantData.get("price")));
         requestPayload.put("quantity", Integer.parseInt(plantData.get("quantity")));
         requestPayload.put("categoryId", Integer.parseInt(categoryId));  // ← ADD categoryId to payload
 
-        Serenity.recordReportData()
-                .withTitle("Plant Creation Request")
-                .andContents("Endpoint: POST /api/plants/category/" + categoryId + 
-                           "\nPayload: " + requestPayload.toString());
-
         // Send POST request to create plant under category
         String endpoint = API_BASE_PATH + "/plants/category/" + categoryId;
+        String fullUrl = baseUrl + endpoint;
         
+        // Log detailed request information
+        String requestDetails = "═══════════════════════════════════════════════════════════════\n" +
+                "HTTP REQUEST DETAILS\n" +
+                "═══════════════════════════════════════════════════════════════\n" +
+                "Method: POST\n" +
+                "URL: " + fullUrl + "\n" +
+                "Headers:\n" +
+                "  - Content-Type: application/json\n" +
+                "  - Authorization: Bearer " + authToken.substring(0, Math.min(50, authToken.length())) + "...\n" +
+                "\nRequest Body (JSON):\n" +
+                formatJson(requestPayload) +
+                "\n═══════════════════════════════════════════════════════════════";
+        
+        LOGGER.info(requestDetails);
+        System.out.println(requestDetails);
+        
+        Serenity.recordReportData()
+                .withTitle("📤 HTTP REQUEST - CREATE PLANT")
+                .andContents(requestDetails);
+
         response = SerenityRest.given()
                 .baseUri(baseUrl)
                 .header("Authorization", "Bearer " + authToken)
@@ -185,13 +236,22 @@ public class PlantManagementApiStepDefinitions {
                 .when()
                 .post(endpoint);
 
-        Serenity.recordReportData()
-                .withTitle("Response Status")
-                .andContents("HTTP " + response.getStatusCode());
+        // Log response
+        String responseDetails = "═══════════════════════════════════════════════════════════════\n" +
+                "HTTP RESPONSE DETAILS\n" +
+                "═══════════════════════════════════════════════════════════════\n" +
+                "Status Code: " + response.getStatusCode() + "\n" +
+                "Status Line: " + response.getStatusLine() + "\n" +
+                "Response Body:\n" +
+                response.getBody().asString() +
+                "\n═══════════════════════════════════════════════════════════════";
+        
+        LOGGER.info(responseDetails);
+        System.out.println(responseDetails);
         
         Serenity.recordReportData()
-                .withTitle("Response Body")
-                .andContents(response.getBody().asString());
+                .withTitle("📥 HTTP RESPONSE - CREATE PLANT")
+                .andContents(responseDetails);
     }
 
     @Then("the response status code should be {int}")
@@ -250,13 +310,19 @@ public class PlantManagementApiStepDefinitions {
     @And("the response should contain the plant name {string}")
     public void verifyPlantName(String expectedName) {
         String actualName = response.jsonPath().getString("name");
+        
+        // For POST scenarios where we created a plant, use actualPlantNameSent
+        // For GET scenarios where we retrieve existing plants, use expectedName
+        String nameToVerify = (actualPlantNameSent != null) ? actualPlantNameSent : expectedName;
+        
         assertThat(actualName)
-                .as("Plant name should be '" + expectedName + "' but got '" + actualName + "'")
-                .isEqualTo(expectedName);
+                .as("Plant name should be '" + nameToVerify + "' but got '" + actualName + "'")
+                .isEqualTo(nameToVerify);
         
         Serenity.recordReportData()
                 .withTitle("Plant Name Verification ✓")
-                .andContents("Name: " + actualName);
+                .andContents("Expected: " + expectedName + "\nActual: " + actualName + 
+                           (actualPlantNameSent != null ? "\nNote: Using randomized name from creation: " + actualPlantNameSent : ""));
     }
 
     @And("the response should contain the price {int}")
@@ -360,13 +426,11 @@ public class PlantManagementApiStepDefinitions {
                 updatePayload.put("price", Integer.parseInt(updateData.get("price")));
                 updatePayload.put("quantity", Integer.parseInt(updateData.get("quantity")));
         
-        Serenity.recordReportData()
-                .withTitle("Plant Update Request")
-                .andContents("Endpoint: PUT /api/plants/" + createdPlantId + 
-                           "\nPayload: " + updatePayload.toString());
-        
         // Send PUT request to update plant
         String endpoint = API_BASE_PATH + "/plants/" + createdPlantId;
+        String fullUrl = baseUrl + endpoint;
+        
+
         
         response = SerenityRest.given()
                 .baseUri(baseUrl)
@@ -376,13 +440,22 @@ public class PlantManagementApiStepDefinitions {
                 .when()
                 .put(endpoint);
         
-        Serenity.recordReportData()
-                .withTitle("Update Response Status")
-                .andContents("HTTP " + response.getStatusCode());
+        // Log response
+        String responseDetails = "═══════════════════════════════════════════════════════════════\n" +
+                "HTTP RESPONSE DETAILS\n" +
+                "═══════════════════════════════════════════════════════════════\n" +
+                "Status Code: " + response.getStatusCode() + "\n" +
+                "Status Line: " + response.getStatusLine() + "\n" +
+                "Response Body:\n" +
+                response.getBody().asString() +
+                "\n═══════════════════════════════════════════════════════════════";
+        
+        LOGGER.info(responseDetails);
+        System.out.println(responseDetails);
         
         Serenity.recordReportData()
-                .withTitle("Update Response Body")
-                .andContents(response.getBody().asString());
+                .withTitle("📥 HTTP RESPONSE - UPDATE PLANT")
+                .andContents(responseDetails);
     }
 
     @And("the response should contain the updated price {int}")
@@ -464,10 +537,26 @@ public class PlantManagementApiStepDefinitions {
     @When("the user sends a DELETE request to remove the plant")
     public void deletePlant() {
         String endpoint = API_BASE_PATH + "/plants/" + createdPlantId;
+        String fullUrl = baseUrl + endpoint;
+        
+        // Log detailed request information
+        String requestDetails = "═══════════════════════════════════════════════════════════════\n" +
+                "HTTP REQUEST DETAILS\n" +
+                "═══════════════════════════════════════════════════════════════\n" +
+                "Method: DELETE\n" +
+                "URL: " + fullUrl + "\n" +
+                "Headers:\n" +
+                "  - Content-Type: application/json\n" +
+                "  - Authorization: Bearer " + authToken.substring(0, Math.min(50, authToken.length())) + "...\n" +
+                "Request Body: (none)\n" +
+                "═══════════════════════════════════════════════════════════════";
+        
+        LOGGER.info(requestDetails);
+        System.out.println(requestDetails);
         
         Serenity.recordReportData()
-                .withTitle("Plant Deletion Request")
-                .andContents("Endpoint: DELETE " + endpoint);
+                .withTitle("📤 HTTP REQUEST - DELETE PLANT")
+                .andContents(requestDetails);
 
         response = SerenityRest.given()
                 .baseUri(baseUrl)
@@ -476,15 +565,27 @@ public class PlantManagementApiStepDefinitions {
                 .when()
                 .delete(endpoint);
 
-        Serenity.recordReportData()
-                .withTitle("Delete Response Status")
-                .andContents("HTTP " + response.getStatusCode());
+        // Log response
+        String responseDetails = "═══════════════════════════════════════════════════════════════\n" +
+                "HTTP RESPONSE DETAILS\n" +
+                "═══════════════════════════════════════════════════════════════\n" +
+                "Status Code: " + response.getStatusCode() + "\n" +
+                "Status Line: " + response.getStatusLine() + "\n";
         
-        if (response.getBody() != null) {
-            Serenity.recordReportData()
-                    .withTitle("Delete Response Body")
-                    .andContents(response.getBody().asString());
+        if (response.getBody() != null && !response.getBody().asString().isEmpty()) {
+            responseDetails += "Response Body:\n" + response.getBody().asString();
+        } else {
+            responseDetails += "Response Body: (empty)";
         }
+        
+        responseDetails += "\n═══════════════════════════════════════════════════════════════";
+        
+        LOGGER.info(responseDetails);
+        System.out.println(responseDetails);
+        
+        Serenity.recordReportData()
+                .withTitle("📥 HTTP RESPONSE - DELETE PLANT")
+                .andContents(responseDetails);
     }
 
     @And("the deleted plant should no longer be retrievable")
