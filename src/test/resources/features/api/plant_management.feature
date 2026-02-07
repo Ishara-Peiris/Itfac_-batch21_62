@@ -5,7 +5,7 @@ Feature: Plant Management API
   So that I can automate plant inventory management
 
   Background:
-    Given the API base URL is configured as "http://localhost:8080"
+    Given the API base URL is configured as "http://loacalhost:8080"
     And the admin has a valid JWT authentication token
 
   @API-PM-01 @smoke @create
